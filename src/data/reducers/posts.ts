@@ -1,7 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 
 import { getClient } from '../../client';
-import { FetchStatus } from '../fetch_status';
 import { createAppAsyncThunk } from '../store-utils';
 import type { Author, Community, Post, PostShare } from '../types';
 
@@ -48,12 +47,52 @@ const getPostsPage = createAppAsyncThunk('posts/getPostsPage', async (page: numb
         }
     );
 });
-const getInitialPage = createAppAsyncThunk('posts/getInitialPage', (_, { dispatch }) => dispatch(getPostsPage(1)));
+
+const toggleSave = createAppAsyncThunk(
+    'posts/toggleSave',
+    async ({ postId, save }: { postId: number; save: boolean }, { getState, rejectWithValue }) => {
+        const state = getState();
+        const jwt = authSelectors.selectJwt(state);
+        if (!jwt) {
+            return rejectWithValue('not logged in');
+        }
+        const client = getClient();
+        if (!client) {
+            return rejectWithValue('no client available');
+        }
+
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        const { post_view: post } = await client.savePost({ post_id: postId, save, auth: jwt });
+        const { postShare } = mapPost(post);
+
+        return postShare;
+    }
+);
+
+const vote = createAppAsyncThunk(
+    'posts/vote',
+    async ({ postId, score }: { postId: number; score: -1 | 0 | 1 }, { getState, rejectWithValue }) => {
+        const state = getState();
+        const jwt = authSelectors.selectJwt(state);
+        if (!jwt) {
+            return rejectWithValue('not logged in');
+        }
+        const client = getClient();
+        if (!client) {
+            return rejectWithValue('no client available');
+        }
+
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        const { post_view: post } = await client.likePost({ post_id: postId, score, auth: jwt });
+        const { postShare } = mapPost(post);
+
+        return postShare;
+    }
+);
 
 const { actions, getInitialState, name: sliceName, reducer } = createSlice({
     name: 'posts',
     initialState: {
-        initialPostsState: FetchStatus.IDLE,
         posts: postsAdapter.getInitialState(),
         postShares: postSharesAdapter.getInitialState()
     },
@@ -75,29 +114,25 @@ const { actions, getInitialState, name: sliceName, reducer } = createSlice({
                 });
                 postSharesAdapter.upsertMany(state.postShares, payload.postShares);
             })
-            .addCase(getInitialPage.pending, state => {
-                state.initialPostsState = FetchStatus.IN_PROGRESS;
+            .addCase(toggleSave.fulfilled, (state, { payload }) => {
+                postSharesAdapter.updateOne(state.postShares, { id: payload.id, changes: payload });
             })
-            .addCase(getInitialPage.rejected, state => {
-                state.initialPostsState = FetchStatus.ERROR;
-            })
-            .addCase(getInitialPage.fulfilled, state => {
-                state.initialPostsState = FetchStatus.SUCCESS;
+            .addCase(vote.fulfilled, (state, { payload }) => {
+                postSharesAdapter.updateOne(state.postShares, { id: payload.id, changes: payload });
             });
     }
 });
 
 const allActions = {
     ...actions,
-    getInitialPage,
-    getPostsPage
+    getPostsPage,
+    toggleSave,
+    vote
 };
 
 export { allActions as actions, sliceName, reducer };
 
 const getState = (state: { [sliceName]: ReturnType<typeof getInitialState> }) => state[sliceName];
-
-export const getInitialPostState = createSelector(getState, state => state.initialPostsState);
 
 export const getPosts = createSelector(getState, state => state.posts);
 export const getPostShares = createSelector(getState, state => state.postShares);

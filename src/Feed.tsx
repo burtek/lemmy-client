@@ -63,7 +63,7 @@ const Communities = styled.div(({ theme }) => ({
     gridAutoRows: 'min-content',
     gap: theme.spacing(0.5, 1),
     '& img': { maxHeight: '1.2em' },
-    '&>:nth-child(n+3)': {
+    '&>:nth-child(n+3),&>:nth-child(n+3) *': {
         display: 'flex',
         alignItems: 'center',
         gap: theme.spacing(0.25)
@@ -78,6 +78,7 @@ const Container = styled.div(({ theme }) => {
         gridTemplateRows: 'min-content 1fr',
         gap: theme.spacing(1),
 
+        minWidth: `min(${maxWidthPx}px, 100%)`,
         maxWidth: maxWidthPx,
         height: `${heightVw}vw`,
 
@@ -86,6 +87,14 @@ const Container = styled.div(({ theme }) => {
         left: `max(0px, calc(50vw - ${maxWidthPx/2}px))`
     };
 });
+const Button = styled.div({
+    cursor: 'pointer',
+    '&:hover': {}
+});
+Button.defaultProps = {
+    ...Button.defaultProps,
+    role: 'button'
+};
 
 export function Feed() {
     const dispatch = useAppDispatch();
@@ -106,6 +115,7 @@ export function Feed() {
     return (
         <Container>
             <Search
+                disabled
                 placeholder="Search"
                 type="text"
                 onChange={setSearch}
@@ -114,7 +124,6 @@ export function Feed() {
             <Posts>
                 <InfiniteScroll
                     loadMore={getPage}
-                    initialLoad={false}
                     hasMore
                     useWindow={false}
                     loader={<div key="loading">Loading...</div>}
@@ -157,10 +166,22 @@ export function Feed() {
                                 <Communities>
                                     {post.published.map(shareId => {
                                         const share = postShares[shareId];
-                                        const community = share?.community && commmunities[share.community];
+                                        if (!share) {
+                                            return null;
+                                        }
+
+                                        const community = commmunities[share.community];
                                         const communityInstance = community?.instance
                                             ? instances[community.instance]?.domain ?? community.instance
                                             : community?.instance;
+
+                                        const onToggleSave = () => dispatch(postActions.toggleSave({ postId: share.id, save: !share.saved }));
+                                        const onToggleUpvote = () => dispatch(
+                                            postActions.vote({ postId: share.id, score: share.vote === 1 ? 0 : 1 })
+                                        );
+                                        const onToggleDownvote = () => dispatch(
+                                            postActions.vote({ postId: share.id, score: share.vote === -1 ? 0 : -1 })
+                                        );
 
                                         return (
                                             <Fragment key={shareId}>
@@ -176,25 +197,29 @@ export function Feed() {
                                                 </div>
                                                 <div>{`${community?.displayName ?? community?.name}@${communityInstance}`}</div>
                                                 <div>
-                                                    {dayjs(share?.date).format(
+                                                    {dayjs(share.date).format(
                                                         'DD-MM-YYYY HH:mm:ss'
                                                     )}
                                                 </div>
                                                 <div>
-                                                    {share?.vote === 1 ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
-                                                    {`+${share?.upvotes}`}
+                                                    <Button onClick={onToggleUpvote}>
+                                                        {share.vote === 1 ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
+                                                    </Button>
+                                                    {`+${share.upvotes}`}
                                                 </div>
                                                 <div>
-                                                    {share?.vote === -1 ? <ThumbDownAltIcon /> : <ThumbDownOffAltIcon />}
-                                                    {`+${share?.downvotes}`}
+                                                    <Button onClick={onToggleDownvote}>
+                                                        {share.vote === -1 ? <ThumbDownAltIcon /> : <ThumbDownOffAltIcon />}
+                                                    </Button>
+                                                    {`-${share.downvotes}`}
                                                 </div>
                                                 <div>
                                                     <CommentIcon />
-                                                    {share?.comments}
+                                                    {share.comments}
                                                 </div>
-                                                <div>
-                                                    {share?.saved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                                                </div>
+                                                <Button onClick={onToggleSave}>
+                                                    {share.saved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                                                </Button>
                                                 <div>
                                                     <a
                                                         href={`${userInstance}/post/${shareId}`}
