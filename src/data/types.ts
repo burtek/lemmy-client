@@ -19,13 +19,18 @@ export interface Post {
     published: PostShare['id'][];
 }
 
+export enum PostShareVote {
+    UP = 1,
+    NO = 0,
+    DOWN = -1
+}
 export interface PostShare {
     id: number;
     community: `${Community['name']}@${Community['instance']}`;
     date: string; // ISO
 
     saved: boolean;
-    vote?: -1 | 1;
+    vote: PostShareVote;
 
     upvotes: number;
     downvotes: number;

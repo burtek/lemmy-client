@@ -2,7 +2,7 @@ import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolk
 
 import { getClient } from '../../client';
 import { createAppAsyncThunk } from '../store-utils';
-import type { Author, Community, Post, PostShare } from '../types';
+import type { Author, Community, Post, PostShare, PostShareVote } from '../types';
 
 import { selectors as authSelectors } from './auth';
 import { mapPost } from './posts-utils';
@@ -71,7 +71,7 @@ const toggleSave = createAppAsyncThunk(
 
 const vote = createAppAsyncThunk(
     'posts/vote',
-    async ({ postId, score }: { postId: number; score: -1 | 0 | 1 }, { getState, rejectWithValue }) => {
+    async ({ postId, score }: { postId: number; score: PostShareVote }, { getState, rejectWithValue }) => {
         const state = getState();
         const jwt = authSelectors.selectJwt(state);
         if (!jwt) {

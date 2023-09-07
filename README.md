@@ -20,6 +20,7 @@ This project aims at creating simple browser lemmy client for personal use and l
 - ux/layout changes
 - search/filtering
 - debug/fix pages being fetched twice
+- github link and build info in footer
 
 ## Contributions
 

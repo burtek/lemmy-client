@@ -1,6 +1,7 @@
 import type { PostView } from 'lemmy-js-client';
 
 import type { Author, Community, Post, PostShare } from '../../types';
+import { PostShareVote } from '../../types';
 
 
 export function mapPost(post: PostView): { author: Author; community: Community; post: Post; postShare: PostShare } {
@@ -33,7 +34,7 @@ export function mapPost(post: PostView): { author: Author; community: Community;
             date: `${post.post.published}Z`,
 
             saved: post.saved,
-            vote: post.my_vote as PostShare['vote'],
+            vote: post.my_vote ?? PostShareVote.NO,
 
             upvotes: post.counts.upvotes,
             downvotes: post.counts.downvotes,
