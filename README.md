@@ -18,6 +18,8 @@ This project aims at creating simple browser lemmy client for personal use and l
 - post preview?
 - embed video support
 - ux/layout changes
+- search/filtering
+- debug/fix pages being fetched twice
 
 ## Contributions
 

@@ -70,7 +70,7 @@ const Communities = styled.div(({ theme }) => ({
     }
 }));
 const Container = styled.div(({ theme }) => {
-    const heightVw = 90;
+    const heightVh = 90;
     const maxWidthPx = 1080;
     return {
         display: 'grid',
@@ -80,10 +80,10 @@ const Container = styled.div(({ theme }) => {
 
         minWidth: `min(${maxWidthPx}px, 100%)`,
         maxWidth: maxWidthPx,
-        height: `${heightVw}vw`,
+        height: `${heightVh}vh`,
 
         position: 'absolute',
-        top: `${(100 - heightVw)/2}vw`,
+        top: `${(100 - heightVh)/2}vh`,
         left: `max(0px, calc(50vw - ${maxWidthPx/2}px))`
     };
 });
