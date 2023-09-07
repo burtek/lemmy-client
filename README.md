@@ -1,27 +1,32 @@
-# React + TypeScript + Vite
+# Simple lemmy web client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<https://lemmy.dtrw.ovh>
 
-Currently, two official plugins are available:
+This project aims at creating simple browser lemmy client for personal use and learning lemmy API.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## TODO
 
-## Expanding the ESLint configuration
+- login form enhancements (login after enter, 2fa support)
+- report spam/ad/hate button/select
+- block user button
+- support for sorting
+- support for other views (all, local, etc)
+- making post dedups optional
+- dark theme
+- nav sidebar
+- saved sidebar
+- post preview?
+- embed video support
+- ux/layout changes
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Contributions
 
-- Configure the top-level `parserOptions` property like this:
+While being opensource, the aim is to work on this personally, so while I accept [bug fixes/security fixes](https://github.com/burtek/lemmy-client/labels/bug) (as I can learn from them), feature enhancement PRs will generally be rejected, unless they fix an issue with [`help wanted`](https://github.com/burtek/lemmy-client/labels/help%20wanted) label.
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
+## Local development
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Use `yarn install` to install dependencies.
+Use `yarn dev` to start local dev instance.
+There is no tests setup yet.
+
+This project uses `typescript`, `vite` and `react`.
