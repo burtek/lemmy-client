@@ -6,7 +6,7 @@ import { selectors as authorSelectors } from '../data/reducers/authors';
 import { selectors as instancesSelectors } from '../data/reducers/instances';
 import { postSelectors } from '../data/reducers/posts';
 
-import Community from './Community';
+import Community, { Communities } from './Community';
 
 
 const PostContainer = styled.div<{ hasThumbnail: boolean }>(({ hasThumbnail, theme }) => {
@@ -42,18 +42,6 @@ const AuthorAvatar = styled.div({
 });
 const Tags = styled.div({ gridArea: 'tags' });
 const Title = styled.div({ gridArea: 'title' });
-const Communities = styled.div(({ theme }) => {
-    const gapFactorX = 0.5;
-    const gapFactorY = 1;
-
-    return {
-        gridArea: 'communities',
-        display: 'grid',
-        gridTemplateColumns: 'min-content 1fr repeat(6, max-content)',
-        gridAutoRows: 'min-content',
-        gap: theme.spacing(gapFactorX, gapFactorY)
-    };
-});
 
 function Post({ id }: { id: number }) {
     const post = useAppSelector(state => postSelectors.selectById(state, id));
