@@ -1,13 +1,15 @@
+// icons: https://mui.com/material-ui/material-icons/
 import styled from '@emotion/styled';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import CommentIcon from '@mui/icons-material/Comment';
+import FlagIcon from '@mui/icons-material/Flag';
 import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
 import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import dayjs from 'dayjs';
-import { Fragment, memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../data';
 import { selectors as authSelectors } from '../data/reducers/auth';
@@ -25,6 +27,29 @@ Button.defaultProps = {
     ...Button.defaultProps,
     role: 'button'
 };
+export const Communities = styled.div(({ theme }) => {
+    const gapFactorX = 0.5;
+    const gapFactorY = 1;
+
+    return {
+        gridArea: 'communities',
+        display: 'grid',
+        gridTemplateColumns: 'min-content 1fr repeat(7, max-content)',
+        gridAutoRows: 'min-content',
+        gap: theme.spacing(gapFactorX, gapFactorY)
+    };
+});
+const ImgWrapper = styled.div({ '& img': { maxHeight: '1.2em' } });
+const ActionWrapper = styled.div(({ theme }) => {
+    const actionsGapFactor = 0.25;
+    return {
+        '&, & *': {
+            display: 'flex',
+            alignItems: 'center',
+            gap: theme.spacing(actionsGapFactor)
+        }
+    };
+});
 
 
 function getVoteScore(current: PostShareVote, next: PostShareVote.UP | PostShareVote.DOWN) {
@@ -66,52 +91,68 @@ function Community({ id: postId }: { id: number }) {
         },
         [share, dispatch, postId]
     );
+    const onReportPost = useCallback(
+        () => {
+            if (share) {
+                // TODO: add reason dialog with optional user blocking
+                // TODO: add toast with confirmation
+                void dispatch(postActions.report({ postId, reason: 'spam/ad' }));
+            }
+        },
+        [dispatch, postId, share]
+    );
 
     if (!share || !community) {
         return null;
     }
 
     const communityInstance = instance?.domain ?? community.instance;
-
+    const communityName = community.displayName ?? community.name;
 
     return (
-        <Fragment key={postId}>
-            <div>
+        <>
+            <ImgWrapper>
                 {community.logoUrl
                     ? (
                         <img
                             src={community.logoUrl}
-                            alt={community.displayName ?? community.name}
+                            alt={communityName}
                         />
                     )
                     : null}
-            </div>
-            <div>{`${community.displayName ?? community.name}@${communityInstance}`}</div>
-            <div>
+            </ImgWrapper>
+            <div>{`${communityName}@${communityInstance}`}</div>
+            <ActionWrapper>
+                {/* TODO: nice format */}
                 {dayjs(share.date).format(
                     'DD-MM-YYYY HH:mm:ss'
                 )}
-            </div>
-            <div>
+            </ActionWrapper>
+            <ActionWrapper>
                 <Button onClick={onToggleUpvote}>
                     {share.vote === PostShareVote.UP ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
                 </Button>
                 {`+${share.upvotes}`}
-            </div>
-            <div>
+            </ActionWrapper>
+            <ActionWrapper>
                 <Button onClick={onToggleDownvote}>
                     {share.vote === PostShareVote.DOWN ? <ThumbDownAltIcon /> : <ThumbDownOffAltIcon />}
                 </Button>
                 {`-${share.downvotes}`}
-            </div>
-            <div>
+            </ActionWrapper>
+            <ActionWrapper>
                 <CommentIcon />
                 {share.comments}
-            </div>
+            </ActionWrapper>
+            <ActionWrapper>
+                <Button onClick={onReportPost}>
+                    <FlagIcon />
+                </Button>
+            </ActionWrapper>
             <Button onClick={onToggleSave}>
                 {share.saved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
             </Button>
-            <div>
+            <ActionWrapper>
                 <a
                     href={`${userInstance}/post/${postId}`}
                     target="_blank"
@@ -119,8 +160,8 @@ function Community({ id: postId }: { id: number }) {
                 >
                     see &gt;
                 </a>
-            </div>
-        </Fragment>
+            </ActionWrapper>
+        </>
     );
 }
 Community.displayName = 'Community';

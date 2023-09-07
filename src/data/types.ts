@@ -29,7 +29,7 @@ export interface PostShare {
     community: `${Community['name']}@${Community['instance']}`;
     date: string; // ISO
 
-    saved: boolean;
+    saved?: boolean;
     vote: PostShareVote;
 
     upvotes: number;

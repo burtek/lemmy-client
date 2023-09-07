@@ -16,13 +16,13 @@ const PostContainer = styled.div<{ hasThumbnail: boolean }>(({ hasThumbnail, the
         display: 'grid',
         gridTemplateAreas: hasThumbnail
             ? ` "author_icon author      thumbnail"
-            "title       title       thumbnail"
-            "tags        tags        thumbnail"
-            "communities communities communities"`
+                "title       title       thumbnail"
+                "tags        tags        thumbnail"
+                "communities communities communities"`
             : ` "author_icon author      author"
-            "title       title       title"
-            "tags        tags        ."
-            "communities communities communities"`,
+                "title       title       title"
+                "tags        tags        ."
+                "communities communities communities"`,
         gridTemplateColumns: 'min-content 1fr max-content',
         gridTemplateRows: 'min-content 1fr min-content min-content',
         gap: theme.spacing(gapFactor),
@@ -45,19 +45,13 @@ const Title = styled.div({ gridArea: 'title' });
 const Communities = styled.div(({ theme }) => {
     const gapFactorX = 0.5;
     const gapFactorY = 1;
-    const actionsGapFactor = 0.25;
+
     return {
         gridArea: 'communities',
         display: 'grid',
         gridTemplateColumns: 'min-content 1fr repeat(6, max-content)',
         gridAutoRows: 'min-content',
-        gap: theme.spacing(gapFactorX, gapFactorY),
-        '& img': { maxHeight: '1.2em' },
-        '&>:nth-child(n+3),&>:nth-child(n+3) *': {
-            display: 'flex',
-            alignItems: 'center',
-            gap: theme.spacing(actionsGapFactor)
-        }
+        gap: theme.spacing(gapFactorX, gapFactorY)
     };
 });
 
@@ -73,10 +67,7 @@ function Post({ id }: { id: number }) {
     const authorString = author && authorInstance ? `${author.name}@${authorInstance.domain}` : post.author;
 
     return (
-        <PostContainer
-            key={post.id}
-            hasThumbnail={Boolean(post.thumbnail)}
-        >
+        <PostContainer hasThumbnail={Boolean(post.thumbnail)}>
             {author?.avatarUrl
                 ? (
                     <AuthorAvatar>

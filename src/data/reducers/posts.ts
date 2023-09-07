@@ -90,6 +90,27 @@ const vote = createAppAsyncThunk(
     }
 );
 
+const report = createAppAsyncThunk(
+    'posts/report',
+    async ({ postId, reason }: { postId: number; reason: string }, { getState, rejectWithValue }) => {
+        const state = getState();
+        const jwt = authSelectors.selectJwt(state);
+        if (!jwt) {
+            return rejectWithValue('not logged in');
+        }
+        const client = getClient();
+        if (!client) {
+            return rejectWithValue('no client available');
+        }
+
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        const { post_report_view: post } = await client.createPostReport({ post_id: postId, reason, auth: jwt });
+        const { postShare } = mapPost(post);
+
+        return postShare;
+    }
+);
+
 const { actions, getInitialState, name: sliceName, reducer } = createSlice({
     name: 'posts',
     initialState: {
@@ -119,6 +140,9 @@ const { actions, getInitialState, name: sliceName, reducer } = createSlice({
             })
             .addCase(vote.fulfilled, (state, { payload }) => {
                 postSharesAdapter.updateOne(state.postShares, { id: payload.id, changes: payload });
+            })
+            .addCase(report.fulfilled, (state, { payload }) => {
+                postSharesAdapter.updateOne(state.postShares, { id: payload.id, changes: payload });
             });
     }
 });
@@ -127,7 +151,8 @@ const allActions = {
     ...actions,
     getPostsPage,
     toggleSave,
-    vote
+    vote,
+    report
 };
 
 export { allActions as actions, sliceName, reducer };

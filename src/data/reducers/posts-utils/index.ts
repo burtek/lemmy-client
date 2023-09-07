@@ -1,10 +1,12 @@
-import type { PostView } from 'lemmy-js-client';
+import type { PostReportView, PostView } from 'lemmy-js-client';
 
 import type { Author, Community, Post, PostShare } from '../../types';
 import { PostShareVote } from '../../types';
 
 
-export function mapPost(post: PostView): { author: Author; community: Community; post: Post; postShare: PostShare } {
+export function mapPost(post: PostView): { author: Author; community: Community; post: Post; postShare: PostShare };
+export function mapPost(post: PostReportView): { author: Author; community: Community; post: Post; postShare: Omit<PostShare, 'saved'> };
+export function mapPost(post: PostView | PostReportView): { author: Author; community: Community; post: Post; postShare: Partial<PostShare> } {
     const key = `${post.post.name}-${post.creator.name}@${post.creator.instance_id}-${post.post.url}`;
 
     return {
@@ -33,7 +35,7 @@ export function mapPost(post: PostView): { author: Author; community: Community;
             community: `${post.community.name}@${post.community.instance_id}`,
             date: `${post.post.published}Z`,
 
-            saved: post.saved,
+            ...'saved' in post ? { saved: post.saved } : {},
             vote: post.my_vote ?? PostShareVote.NO,
 
             upvotes: post.counts.upvotes,
